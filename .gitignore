@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#les csv sont trop lourd
+*.csv
+
+# Sécurité Kaggle
+kaggle.json
