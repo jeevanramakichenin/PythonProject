@@ -3,48 +3,45 @@ import pandas as pd
 
 def clean_data():
     """
-    Nettoie les données brutes de Spotify.
-    - Supprime les lignes sans pays.
-    - Convertit les dates au format datetime.
-    - Sauvegarde le résultat dans data/cleaned/cleaned_data.csv.
+    Nettoie les données des Jeux Olympiques (summer.csv).
     """
-    # Définition des chemins
+    #Chemins
     root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    raw_path = os.path.join(root_dir, 'data', 'raw', 'universal_top_spotify_songs.csv')
+    raw_path = os.path.join(root_dir, 'data', 'raw', 'summer.csv')
     cleaned_path = os.path.join(root_dir, 'data', 'cleaned', 'cleaned_data.csv')
 
-    # Vérification que le fichier brut existe
+    #Vérification
     if not os.path.exists(raw_path):
-        print(f"Erreur : Le fichier brut est introuvable : {raw_path}")
+        print(f"Erreur : Le fichier '{raw_path}' est introuvable.")
         return
 
-    print("Début du nettoyage des données...")
-    
+    print("Nettoyage des données Olympiques (Summer)...")
+
     try:
-        # Chargement des données
+        #Chargement
         df = pd.read_csv(raw_path)
-        print(f"Taille initiale : {df.shape[0]} lignes")
+        print(f"Taille initiale : {df.shape[0]} médailles")
 
-        # Nettoyage
-        
-        # On supprime les lignes où la colonne 'country' est vide
+        #Renommage des colonnes (tout en minuscules pour coder plus vite)
+        df.columns = [c.lower() for c in df.columns]
+
+        #Nettoyage spécifique
+        # On vérifie qu'il n'y a pas de pays manquant pour la carte
         df = df.dropna(subset=['country'])
-        
-        # On transforme le texte "2023-10-25" en objet Date compréhensible par Python
-        df['snapshot_date'] = pd.to_datetime(df['snapshot_date'])
-        
-        # Conversion de la durée (millisecondes à minutes)
-        df['duration_min'] = df['duration_ms'] / 60000
-        df = df.round({'duration_min': 2}) # On arrondit à 2 chiffres après la virgule
 
-        print(f"Taille après nettoyage : {df.shape[0]} lignes")
+        #Ajout d'une colonne "Valeur" pour convertir les medailles en scores
+        medal_score = {'Gold': 3, 'Silver': 2, 'Bronze': 1}
+        df['score'] = df['medal'].map(medal_score)
 
-        # On sauvegarde le fichier propre sans l'index
+        #Sauvegarde
         df.to_csv(cleaned_path, index=False)
-        print(f"Succès ! Données nettoyées sauvegardées ici : {cleaned_path}")
+        print(f"Données propres sauvegardées dans : {cleaned_path}")
+        print(f"Colonnes disponibles : {list(df.columns)}")
+        print(f"Taille finale : {df.shape[0]} médailles")
 
     except Exception as e:
-        print(f"Une erreur est survenue pendant le nettoyage : {e}")
+        print(f"Erreur pendant le nettoyage : {e}")
+
 
 if __name__ == "__main__":
     clean_data()

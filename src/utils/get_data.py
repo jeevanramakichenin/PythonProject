@@ -22,7 +22,7 @@ def get_data():
     from kaggle.api.kaggle_api_extended import KaggleApi
 
     # Authentification et Téléchargement
-    dataset_name = "asaniczka/top-spotify-songs-in-73-countries-daily-updated"
+    dataset_name = "the-guardian/olympic-games"
     print(f"🔄 Connexion à Kaggle et téléchargement de : {dataset_name}...")
     
     try:

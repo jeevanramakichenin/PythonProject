@@ -1,2 +1,4 @@
 kaggle
 pandas
+dash
+plotly
