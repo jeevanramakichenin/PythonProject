@@ -2,3 +2,4 @@ kaggle
 pandas
 dash
 plotly
+folium

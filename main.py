@@ -6,6 +6,9 @@ from src.app import app
 from src.pages import home
 from src.utils.get_data import get_data
 from src.utils.clean_data import clean_data
+from src.utils.map_folium import build_medals_map_html
+
+
 
 
 def main():
@@ -38,6 +41,7 @@ def main():
 
     # Configuration et lancement du serveur Dash
     # On charge le layout de la page d'accueil
+
     app.layout = home.layout
     app.run(debug=True)
 
