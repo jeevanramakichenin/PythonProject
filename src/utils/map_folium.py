@@ -55,6 +55,8 @@ def build_medals_map_html() -> str:
     for medal in ["Gold", "Silver", "Bronze"]:
         country_medals[f"{medal}_pct"] = country_medals[medal] / country_medals["Total"] * 100
 
+    #print(country_medals.loc["IND", ["Gold", "Silver", "Bronze", "Total", "Gold_pct"]])
+
     country_medals = country_medals.reset_index()
     data = country_medals[["country", "Gold_pct", "Silver_pct", "Bronze_pct"]]
 

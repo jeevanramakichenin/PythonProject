@@ -1,5 +1,6 @@
 import plotly.express as px
 from src.utils.common_functions import load_data
+from src.utils.athletes_data import medals_per_athlete_by_sport
 
 
 # histogramme des 10 pays avec le plus de médailles.
@@ -28,4 +29,22 @@ def create_top_10_bar_chart():
         labels={'count': 'Nombre de médailles', 'country': 'Pays'}
     )
 
+    return fig
+
+def create_athlete_medals_hist(sport: str, max_medals: int = 10):
+    medals = medals_per_athlete_by_sport(sport)
+
+    medals["medal_count_capped"] = medals["medal_count"].clip(upper=max_medals)
+
+    fig = px.histogram(
+        medals,
+        x="medal_count_capped",
+        nbins=max_medals,
+        title="Distribution du nombre de médailles par athlète",
+        labels={
+            "medal_count_capped": f"Nombre de médailles (cap à {max_medals})",
+            "count": "Nombre d'athlètes",
+        },
+    )
+    fig.update_layout(bargap=0.1)
     return fig

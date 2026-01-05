@@ -7,7 +7,7 @@ from src.pages import home
 from src.utils.get_data import get_data
 from src.utils.clean_data import clean_data
 from src.utils.map_folium import build_medals_map_html
-
+from src.callbacks import register_callbacks
 
 
 
@@ -38,6 +38,9 @@ def main():
             clean_data()
     else:
         print("Donnees detectees.")
+
+    # Appel des callback
+    register_callbacks()
 
     # Configuration et lancement du serveur Dash
     # On charge le layout de la page d'accueil
