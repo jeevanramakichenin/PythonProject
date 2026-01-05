@@ -1,51 +1,75 @@
 import os
 import sys
+from dash import html, dcc, Input, Output
 
-# Imports des modules du projet
+#Imports du projet
 from src.app import app
-from src.pages import home
+from src.pages import home, about
+from src.components.navbar import create_navbar
 from src.utils.get_data import get_data
 from src.utils.clean_data import clean_data
+<<<<<<< HEAD
 from src.utils.map_folium import build_medals_map_html
 from src.callbacks import register_callbacks
 
+=======
+>>>>>>> 7e51d15d9c9ab5f67eeafaa4bd467f2b7288be1d
 
 
 def main():
-    print("Demarrage de l'application...")
+    print("Démarrage de l'application...")
 
-    # Definition des chemins absolus
+    #---VÉRIFICATION DES DONNÉES---
     root_dir = os.path.dirname(os.path.abspath(__file__))
     cleaned_file = os.path.join(root_dir, 'data', 'cleaned', 'cleaned_data.csv')
     kaggle_key = os.path.join(root_dir, 'kaggle.json')
 
-    # Verification de la presence des donnees
     if not os.path.exists(cleaned_file):
-        print("Donnees manquantes. Verification des sources...")
-
-        # Arret si ni les donnees ni la cle ne sont presentes
+        print("Données manquantes...")
         if not os.path.exists(kaggle_key) and not os.path.exists(os.path.join(root_dir, 'data', 'cleaned')):
-            print("Erreur : 'kaggle.json' introuvable et aucune donnee locale.")
-            print("Veuillez placer le fichier kaggle.json a la racine.")
+            print("ERREUR : Pas de clé kaggle et pas de données.")
             sys.exit(1)
-
-        # Execution de la pipeline de donnees si la cle est presente
         if os.path.exists(kaggle_key):
-            print("Telechargement des donnees brutes...")
             get_data()
-
-            print("Nettoyage et traitement des donnees...")
             clean_data()
     else:
-        print("Donnees detectees.")
+        print("Données détectées.")
 
+<<<<<<< HEAD
     # Appel des callback
     register_callbacks()
 
     # Configuration et lancement du serveur Dash
     # On charge le layout de la page d'accueil
+=======
+>>>>>>> 7e51d15d9c9ab5f67eeafaa4bd467f2b7288be1d
 
-    app.layout = home.layout
+    #---CONFIGURATION DE LA NAVIGATION---
+
+    #On définit la structure globale du site
+    app.layout = html.Div([
+        dcc.Location(id='url', refresh=False), #surveille l'URL
+        create_navbar(),
+
+        #Le conteneur qui change selon la page
+        html.Div(id='page-content')
+    ])
+
+    # --- 3. LE CERVEAU (CALLBACK) ---
+
+    #Cette fonction est appelée chaque fois que l'URL change
+    @app.callback(Output('page-content', 'children'),
+                  [Input('url', 'pathname')])
+    def display_page(pathname):
+        if pathname == '/about':
+            return about.layout
+        elif pathname == '/':
+            return home.layout
+        else:
+            return "404 - Page introuvable"
+
+    #---LANCEMENT---
+    print("Serveur lancé ! Clique ici : http://127.0.0.1:8050/")
     app.run(debug=True)
 
 
