@@ -3,3 +3,4 @@ pandas
 dash
 plotly
 folium
+dash-bootstrap-components
