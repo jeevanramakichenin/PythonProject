@@ -1,28 +1,19 @@
-from dash import html, dcc
+import dash_bootstrap_components as dbc
+
+NAVY_BLUE = "#2c3e50"
 
 
 def create_navbar():
-
-    layout = html.Div([
-        #Lien vers l'accueil
-        dcc.Link('🏠 Accueil', href='/', style={
-            'marginRight': '20px',
-            'textDecoration': 'none',
-            'fontSize': '18px',
-            'color': 'black'
-        }),
-
-        # Lien vers le A Propos
-        dcc.Link('ℹ️ À Propos', href='/about', style={
-            'textDecoration': 'none',
-            'fontSize': '18px',
-            'color': 'black'
-        })
-    ], style={
-        'padding': '15px 30px',
-        'backgroundColor': '#f0f0f0',
-        'borderBottom': '1px solid #ccc',
-        'marginBottom': '20px'
-    })
-
-    return layout
+    """Barre de navigation."""
+    return dbc.NavbarSimple(
+        children=[
+            dbc.NavItem(dbc.NavLink("🏠 Accueil", href="/")),
+            dbc.NavItem(dbc.NavLink("ℹ️ À Propos", href="/about")),
+        ],
+        brand="🏅 Dashboard Olympique",
+        brand_href="/",
+        color=NAVY_BLUE,
+        dark=True,
+        sticky="top",
+        className="mb-4 shadow-sm"
+    )

@@ -11,12 +11,19 @@ def _load_cleaned() -> pd.DataFrame:
 
 
 def get_sports_list():
+    """Retourne la liste des sports disponibles."""
     df = _load_cleaned()
-    sports = sorted(df["sport"].dropna().unique().tolist())
-    return sports
+    return sorted(df["sport"].dropna().unique().tolist())
+
+
+def get_years_list():
+    """Retourne la liste des années olympiques."""
+    df = _load_cleaned()
+    return sorted(df["year"].dropna().unique().tolist())
 
 
 def medals_per_athlete_by_sport(sport: str | None):
+    """Compte les médailles par athlète, filtré par sport."""
     df = _load_cleaned()
 
     if sport and sport != "ALL":

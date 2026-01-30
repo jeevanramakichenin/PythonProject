@@ -1,82 +1,111 @@
 from dash import html, dcc, dash_table
-from src.components.figures import create_top_10_bar_chart
+import dash_bootstrap_components as dbc
 from src.utils.map_folium import build_medals_map_html
-from src.utils.athletes_data import get_sports_list
+from src.utils.athletes_data import get_sports_list, get_years_list
 
 sports = get_sports_list()
+years = get_years_list()
 
-#On setup le Layout
-layout = html.Div([
-    html.H1("Dashboard Jeux Olympiques", style={'textAlign': 'center', 'marginBottom': '20px'}),
-    html.P("Bienvenue sur l'outil d'analyse des médailles olympiques", style={'textAlign': 'center'}),
+NAVY_BLUE = "#2c3e50"
+GOLD = "#d4af37"
+CARD_HEADER_STYLE = {"backgroundColor": GOLD, "color": NAVY_BLUE, "fontWeight": "bold"}
 
-    html.Hr(),
+layout = dbc.Container([
 
-    #le conteneur du graphique
-    html.Div([
-        html.H3("Répartition des médailles par pays"),
-        dcc.Graph(figure=create_top_10_bar_chart())
-    ], style={'padding': '20px', 'border': '1px solid #ddd', 'borderRadius': '10px'}),
+    # Section 1 : Top 10 + Évolution
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("📊 Top 10 des Nations", style=CARD_HEADER_STYLE),
+                dbc.CardBody([
+                    dbc.Label("Édition", className="fw-bold small"),
+                    dcc.Dropdown(
+                        id="year-dropdown",
+                        options=[{"label": "🏆 Toutes les éditions", "value": "ALL"}]
+                                + [{"label": f"{int(y)}", "value": str(int(y))} for y in years],
+                        value="ALL", clearable=False, style={"marginBottom": "10px"}
+                    ),
+                    dcc.Graph(id="top10-chart", style={"height": "320px"}, config={"displayModeBar": False})
+                ], className="p-3")
+            ], className="shadow-sm h-100")
+        ], lg=6, md=12, className="mb-4"),
 
-    html.Br(),
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("📈 Évolution par Genre", style=CARD_HEADER_STYLE),
+                dbc.CardBody([
+                    dbc.Label("Sport", className="fw-bold small"),
+                    dcc.Dropdown(
+                        id="evolution-sport-dropdown",
+                        options=[{"label": "Tous les sports", "value": "ALL"}]
+                                + [{"label": s, "value": s} for s in sports],
+                        value="ALL", clearable=False, style={"marginBottom": "10px"}
+                    ),
+                    dcc.Graph(id="evolution-chart", style={"height": "320px"}, config={"displayModeBar": False})
+                ], className="p-3")
+            ], className="shadow-sm h-100")
+        ], lg=6, md=12, className="mb-4"),
+    ], className="g-4"),
 
-    #La map folium
-    html.Div([
-        html.H3("Carte : % de médailles (Or / Argent / Bronze) pour un pays"),
-        html.P("Cette carte choroplèthe représente la proportion de médailles d’or/argent/bronze parmi l’ensemble des médailles obtenues par chaque pays aux Jeux Olympiques d’été."),
-        html.Iframe(
-            srcDoc=build_medals_map_html(),
-            style={"width": "100%", "height": "650px", "border": "none"}
-        )
-    ], style={'padding': '20px', 'border': '1px solid #ddd', 'borderRadius': '10px'}),
+    # Section 2 : Carte
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("🗺️ Répartition Géographique des Médailles", style=CARD_HEADER_STYLE),
+                dbc.CardBody([
+                    html.P("Proportion de médailles d'or, d'argent et de bronze par pays.", className="text-muted small mb-3"),
+                    html.Iframe(srcDoc=build_medals_map_html(), style={"width": "100%", "height": "500px", "border": "none", "borderRadius": "8px"})
+                ], className="p-3")
+            ], className="shadow-sm")
+        ], lg=12, className="mb-4"),
+    ]),
 
-    #Slider athlete par medaille
-    #(Sport dropdown + slider + histogramme + aperçu)
-    html.Div([
-        html.H3("Athlètes : distribution du nombre de médailles"),
-        html.P(
-            "Filtre par sport puis explore la distribution des athlètes selon leur nombre de médailles.",
-            style={'padding': '20px',"marginTop": "6px", "color": "#666", "fontSize": "14px"}
-        ),
+    # Section 3 : Athlètes
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("🏆 Aperçu des Athlètes (Top 20)", style=CARD_HEADER_STYLE),
+                dbc.CardBody([
+                    html.P("Les athlètes les plus médaillés.", className="text-muted small mb-3"),
+                    dash_table.DataTable(
+                        id="athlete-table",
+                        columns=[{"name": "Athlète", "id": "athlete"}, {"name": "Médailles", "id": "medal_count"}],
+                        data=[], page_size=10, sort_action="native",
+                        style_table={"overflowX": "auto"},
+                        style_cell={"textAlign": "left", "padding": "8px 12px", "fontSize": "14px"},
+                        style_header={"fontWeight": "bold", "backgroundColor": "#f8f9fa", "borderBottom": f"2px solid {GOLD}"},
+                        style_data_conditional=[
+                            {"if": {"row_index": "odd"}, "backgroundColor": "#f8f9fa"},
+                            {"if": {"row_index": 0}, "backgroundColor": "#fef9e7", "fontWeight": "bold"}
+                        ]
+                    ),
+                ], className="p-3")
+            ], className="shadow-sm h-100")
+        ], lg=6, md=12, className="mb-4"),
 
-        html.Div([
-            html.Label("Sport"),
-            dcc.Dropdown(
-                id="sport-dropdown",
-                options=[{"label": "Tous les sports", "value": "ALL"}]
-                        + [{"label": s, "value": s} for s in sports],
-                value="ALL",
-                clearable=False,
-            ),
-        ], style={"marginBottom": "12px"}),
+        dbc.Col([
+            dbc.Card([
+                dbc.CardHeader("🏃 Analyse des Athlètes", style=CARD_HEADER_STYLE),
+                dbc.CardBody([
+                    html.P("Filtrez par sport pour explorer la distribution.", className="text-muted small mb-3"),
+                    dbc.Row([
+                        dbc.Col([
+                            dbc.Label("Sport", className="fw-bold small"),
+                            dcc.Dropdown(
+                                id="sport-dropdown",
+                                options=[{"label": "Tous les sports", "value": "ALL"}] + [{"label": s, "value": s} for s in sports],
+                                value="ALL", clearable=False,
+                            ),
+                        ], md=6, className="mb-2"),
+                        dbc.Col([
+                            dbc.Label("Cap médailles", className="fw-bold small"),
+                            dcc.Slider(id="max-medals-slider", min=3, max=30, step=1, value=10, marks={i: str(i) for i in [3, 10, 20, 30]}),
+                        ], md=6, className="mb-2"),
+                    ]),
+                    dcc.Graph(id="athlete-hist", style={"height": "280px"}, config={"displayModeBar": False}),
+                ], className="p-3")
+            ], className="shadow-sm h-100")
+        ], lg=6, md=12, className="mb-4"),
+    ], className="g-4"),
 
-        html.Div([
-            html.Label("Cap max médailles (pour lisibilité)"),
-            dcc.Slider(
-                id="max-medals-slider",
-                min=3, max=30, step=1, value=10,
-                marks={i: str(i) for i in [3,5,10,15,20,25,30]},
-            ),
-        ], style={"marginBottom": "12px"}),
-
-        dcc.Graph(id="athlete-hist"),
-
-        html.H4("Aperçu des athlètes (Top 20)"),
-        dash_table.DataTable(
-            id="athlete-table",
-            columns=[
-                {"name": "Athlète", "id": "athlete"},
-                {"name": "Nombre de médailles", "id": "medal_count"},
-            ],
-            data=[],
-            page_size=20,
-            sort_action="native",
-            style_table={"overflowX": "auto"},
-            style_cell={"textAlign": "left", "padding": "6px"},
-            style_header={"fontWeight": "bold"},
-        ),
-    ], style={'padding': '20px', 'border': '1px solid #ddd', 'borderRadius': '10px'}),
-
-
-    
-])
+], style={"maxWidth": "1200px", "margin": "0 auto", "padding": "0 20px"}, className="bg-light")
