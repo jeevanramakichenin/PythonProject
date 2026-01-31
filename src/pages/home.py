@@ -70,14 +70,24 @@ layout = dbc.Container([
                     dash_table.DataTable(
                         id="athlete-table",
                         columns=[{"name": "Athlète", "id": "athlete"}, {"name": "Médailles", "id": "medal_count"}],
-                        data=[], page_size=10, sort_action="native",
+                        data=[],
+                        page_size=10,
+                        sort_action="native",
+                        cell_selectable=False,
                         style_table={"overflowX": "auto"},
                         style_cell={"textAlign": "left", "padding": "8px 12px", "fontSize": "14px"},
                         style_header={"fontWeight": "bold", "backgroundColor": "#f8f9fa", "borderBottom": f"2px solid {GOLD}"},
                         style_data_conditional=[
                             {"if": {"row_index": "odd"}, "backgroundColor": "#f8f9fa"},
-                            {"if": {"row_index": 0}, "backgroundColor": "#fef9e7", "fontWeight": "bold"}
-                        ]
+                            {"if": {"state": "selected"}, "backgroundColor": "transparent", "border": "none"},
+                            {"if": {"state": "active"}, "backgroundColor": "transparent", "border": "none"},
+                        ],
+                        css=[
+                            {"selector": ".dash-cell.focused", "rule": "outline: none !important; box-shadow: none !important; background-color: transparent !important;"},
+                            {"selector": ".dash-cell.selected", "rule": "background-color: transparent !important;"},
+                            {"selector": "td.dash-cell:focus", "rule": "outline: none !important; box-shadow: none !important;"},
+                            {"selector": "td.dash-cell.focused", "rule": "background-color: transparent !important;"},
+                        ],
                     ),
                 ], className="p-3")
             ], className="shadow-sm h-100")
@@ -99,6 +109,7 @@ layout = dbc.Container([
                         ], md=6, className="mb-2"),
                         dbc.Col([
                             dbc.Label("Cap médailles", className="fw-bold small"),
+                            html.P("Répartition du nombre de médailles par athlète selon le sport.", className="text-muted small mb-3"),
                             dcc.Slider(id="max-medals-slider", min=3, max=30, step=1, value=10, marks={i: str(i) for i in [3, 10, 20, 30]}),
                         ], md=6, className="mb-2"),
                     ]),
