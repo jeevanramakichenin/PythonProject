@@ -50,7 +50,32 @@ def build_medals_map_html() -> str:
     country_medals = country_medals.reset_index()
     data = country_medals[["country", "Gold_pct", "Silver_pct", "Bronze_pct"]]
 
-    m = fl.Map(location=[20, 0], zoom_start=2, tiles=None)
+    m = fl.Map(location=[20, 0], zoom_start=2, tiles=None, scrollWheelZoom=False)
+
+    class CtrlScrollZoom(MacroElement):
+        def __init__(self):
+            super().__init__()
+            self._name = "CtrlScrollZoom"
+            self._template = Template("""
+            {% macro script(this, kwargs) %}
+            var map = {{ this._parent.get_name() }};
+            var container = map.getContainer();
+            var t = null;
+
+            container.addEventListener('wheel', function(e) {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                map.scrollWheelZoom.enable();
+                clearTimeout(t);
+                t = setTimeout(function(){ map.scrollWheelZoom.disable(); }, 300);
+            } else {
+                map.scrollWheelZoom.disable();
+            }
+            }, {passive: false});
+            {% endmacro %}
+            """)
+
+    m.add_child(CtrlScrollZoom())
 
     attr = "© OpenStreetMap contributors © CARTO"
     fl.TileLayer(
@@ -213,3 +238,4 @@ def build_medals_map_html() -> str:
     ))
 
     return m.get_root().render()
+
